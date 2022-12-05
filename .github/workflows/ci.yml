@@ -60,14 +60,16 @@ jobs:
         cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
 
-    - name: Get JDK version
+    - name: Get JDK version with generated script
       run: |
-        JAVA_VERSION=$(jq --raw-output '.__java_version' cookiecutter.json)
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        source scripts/get_java_version.sh
         echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
 
-    - name: Get sbt version
+    - name: Get sbt version with generated script
       run: |
-        SBT_VERSION=$(jq --raw-output '.__sbt_version' cookiecutter.json)
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        source scripts/get_sbt_version.sh
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
     - name: Set up JDK ${{ env.JAVA_VERSION }}
