@@ -6,7 +6,7 @@ on:
 env:
   DEFAULT_SHELL: "bash"
   {{ cookiecutter.__environment_upper }}_BASE_URL: ${{ '{{' }} secrets.{{ cookiecutter.__environment_upper }}_BASE_URL {{ '}}' }}
-sdsa:dassadads
+
 jobs:
   manual-api-call:
     name: Manual API call
