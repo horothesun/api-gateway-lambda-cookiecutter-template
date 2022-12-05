@@ -1,5 +1,7 @@
 # API Gateway triggered Lambda template
 
+[![CI](https://github.com/horothesun/api-gateway-lambda-cookiecutter-template/actions/workflows/ci.yml/badge.svg)](https://github.com/horothesun/api-gateway-lambda-cookiecutter-template/actions/workflows/ci.yml)
+
 Cookiecutter template to generate an API Gateway triggered Lambda.
 
 ## Requirements
