@@ -87,6 +87,10 @@ jobs:
         sbt test IntegrationTest/test
 
     - name: Build generated Docker image
+      env:
+        ECR_REGISTRY: "ecr_registry"
+        ECR_REPO_NAME: "ecr-repo-name"
+        IMAGE_LATEST_TAG: "latest"
       run: |
         cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         ./scripts/build_docker_image.sh
