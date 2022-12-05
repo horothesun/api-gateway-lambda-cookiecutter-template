@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [ "{{ cookiecutter.default_branch }}" ]
+  pull_request:
+    branches: [ "{{ cookiecutter.default_branch }}" ]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ '{{' }} secrets.AWS_REGION {{ '}}' }}
+  ECR_REGISTRY: ${{ '{{' }} secrets.AWS_ACCOUNT_ID {{ '}}' }}.dkr.ecr.${{ '{{' }} secrets.AWS_REGION {{ '}}' }}.amazonaws.com
+  ECR_REPO_NAME: ${{ '{{' }} secrets.ECR_REPO_NAME {{ '}}' }}
+  IMAGE_LATEST_TAG: "latest"
+  LAMBDA_NAME: ${{ '{{' }} secrets.LAMBDA_NAME {{ '}}' }}
+
+concurrency:
+  group: ${{ '{{' }} github.ref {{ '}}' }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-push:
+    name: Build, test and push
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: "bash"
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@1.1.0
+        env:
+          SHELLCHECK_OPTS: --severity style --enable all --exclude SC2312 --shell bash
+        with:
+          check_together: yes
+          scandir: "./scripts"
+
+      - name: Get JDK version
+        run: |
+          source scripts/get_java_version.sh
+          echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Get sbt version
+        run: |
+          source scripts/get_sbt_version.sh
+          echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
+
+      - name: Set up JDK ${{ '{{' }} env.JAVA_VERSION {{ '}}' }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ '{{' }} env.JAVA_VERSION {{ '}}' }}
+          distribution: "adopt"
+
+      - name: Scalafmt check
+        run: sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
+
+      - name: Run tests
+        run: sbt test IntegrationTest/test
+
+      - name: Build image
+        run: ./scripts/build_docker_image.sh
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        if: github.ref == 'refs/heads/{{ cookiecutter.default_branch }}' && contains(fromJson('["push", "workflow_dispatch"]'), github.event_name)
+        with:
+          role-to-assume: ${{ '{{' }} secrets.{{ cookiecutter.__environment_upper }}_CI_ROLE_ARN {{ '}}' }}
+          aws-region: ${{ '{{' }} env.AWS_REGION {{ '}}' }}
+
+      - name: Push image
+        if: github.ref == 'refs/heads/{{ cookiecutter.default_branch }}' && contains(fromJson('["push", "workflow_dispatch"]'), github.event_name)
+        run: ./scripts/push_image_to_ecr.sh
+
+      - name: Update lambda
+        if: github.ref == 'refs/heads/{{ cookiecutter.default_branch }}' && contains(fromJson('["push", "workflow_dispatch"]'), github.event_name)
+        run: ./scripts/update_lambda_image_uri.sh

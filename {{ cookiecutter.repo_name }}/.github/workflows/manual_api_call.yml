@@ -1,0 +1,24 @@
+name: Manual API call
+
+on:
+  workflow_dispatch: # enable manual execution
+
+env:
+  DEFAULT_SHELL: "bash"
+  {{ cookiecutter.__environment_upper }}_BASE_URL: ${{ '{{' }} secrets.{{ cookiecutter.__environment_upper }}_BASE_URL {{ '}}' }}
+
+jobs:
+  manual-api-call:
+    name: Manual API call
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    defaults:
+      run:
+        shell: ${{ '{{' }} env.DEFAULT_SHELL {{ '}}' }}
+    steps:
+    - name: API call
+      run: |
+        curl --silent \
+          --write-out "\n%{http_code}\n" \
+          --request "GET" "${{ '{' }}{{ cookiecutter.__environment_upper }}_BASE_URL}/time" | \
+          jq --slurp '{ http_code: .[1], response: .[0] }'

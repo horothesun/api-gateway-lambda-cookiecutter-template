@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch: # enable manual execution
+
+env:
+  DEFAULT_SHELL: "bash"
+  COOKIECUTTER_PARAM_GITHUB_ORG: "octo-org"
+  COOKIECUTTER_PARAM_REPO_NAME: "api-gateway-lambda"
+  COOKIECUTTER_PARAM_ENVIRONMENT: "prod"
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cookiecutter:
+    name: Cookiecutter
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+
+    - uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Setup Cookiecutter
+      run: pip install cookiecutter==2.1.1
+
+    - name: Generate project
+      run: |
+        cookiecutter . --no-input --verbose \
+          github_org="${COOKIECUTTER_PARAM_GITHUB_ORG}" \
+          repo_name="${COOKIECUTTER_PARAM_REPO_NAME}" \
+          environment="${COOKIECUTTER_PARAM_ENVIRONMENT}"
+
+    - name: ShellCheck generated scripts
+      uses: ludeeus/action-shellcheck@1.1.0
+      env:
+        SHELLCHECK_OPTS: --severity style --enable all --exclude SC2312 --shell bash
+      with:
+        check_together: yes
+        scandir: "./${COOKIECUTTER_PARAM_REPO_NAME}/scripts"
+
+    - name: Setup act
+      uses: actionsflow/setup-act@v1
+
+    - name: Test generated GitHub workflows
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
+
+    - name: Get JDK version
+      run: |
+        JAVA_VERSION=$(jq --raw-output '.__java_version' cookiecutter.json)
+        echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Get sbt version
+      run: |
+        JAVA_VERSION=$(jq --raw-output '.__sbt_version' cookiecutter.json)
+        echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: "adopt"
+
+    - name: Scalafmt check generated files
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
+
+    - name: Run generated tests
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        sbt test IntegrationTest/test
+
+    - name: Build generated Docker image
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        ./scripts/build_docker_image.sh
+
+    - name: Upload generated project
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
+        path: |
+          ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.bsp
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.idea
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.metals
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/target
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/project/project
+          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/project/target
+        if-no-files-found: error
