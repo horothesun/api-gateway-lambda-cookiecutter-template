@@ -67,7 +67,7 @@ jobs:
 
     - name: Get sbt version
       run: |
-        JAVA_VERSION=$(jq --raw-output '.__sbt_version' cookiecutter.json)
+        SBT_VERSION=$(jq --raw-output '.__sbt_version' cookiecutter.json)
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
     - name: Set up JDK ${{ env.JAVA_VERSION }}
@@ -91,6 +91,7 @@ jobs:
         ECR_REGISTRY: "ecr_registry"
         ECR_REPO_NAME: "ecr-repo-name"
         IMAGE_LATEST_TAG: "latest"
+        SBT_VERSION: ${{ env.SBT_VERSION }}
       run: |
         cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         ./scripts/build_docker_image.sh
