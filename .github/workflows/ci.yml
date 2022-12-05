@@ -21,7 +21,7 @@ jobs:
   cookiecutter:
     name: Cookiecutter
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     defaults:
       run:
         shell: ${{ env.DEFAULT_SHELL }}
