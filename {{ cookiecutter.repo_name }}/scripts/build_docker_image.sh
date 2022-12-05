@@ -12,7 +12,7 @@ docker build --tag "${ECR_REPO_NAME_AND_LATEST_TAG}" \
   --file "./Dockerfile" "."
 
 IMAGE_ID=$(
-  docker images --format '{{json .}}' "${ECR_REPO_NAME_AND_LATEST_TAG}" | \
+  docker images --format '{{ '{{' }}json .{{ '}}' }}' "${ECR_REPO_NAME_AND_LATEST_TAG}" | \
     jq --raw-output '.ID'
 )
 docker tag "${IMAGE_ID}" "${ECR_REGISTRY}/${ECR_REPO_NAME_AND_LATEST_TAG}"
