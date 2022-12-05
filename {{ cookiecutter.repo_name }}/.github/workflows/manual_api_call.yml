@@ -5,9 +5,7 @@ on:
 
 env:
   DEFAULT_SHELL: "bash"
-    {{ cookiecutter.__environment_upper }}_BASE_URL: ${{ '{{' }} secrets.{{ cookiecutter.__environment_upper }}_BASE_URL {{ '}}' }}
-
-klmfad:adskmj
+  {{ cookiecutter.__environment_upper }}_BASE_URL: ${{ '{{' }} secrets.{{ cookiecutter.__environment_upper }}_BASE_URL {{ '}}' }}
 
 jobs:
   manual-api-call:
