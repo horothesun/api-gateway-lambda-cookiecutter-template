@@ -8,7 +8,6 @@ on:
   workflow_dispatch: # enable manual execution
 
 env:
-  DEFAULT_SHELL: "bash"
   COOKIECUTTER_PARAM_GITHUB_ORG: "octo-org"
   COOKIECUTTER_PARAM_REPO_NAME: "api-gateway-lambda"
   COOKIECUTTER_PARAM_ENVIRONMENT: "prod"
@@ -23,9 +22,6 @@ jobs:
     name: Generate project
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - uses: actions/checkout@v3
 
@@ -75,9 +71,6 @@ jobs:
     needs: generate-project
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - name: Get cached generated project
       uses: actions/cache@v3
@@ -98,9 +91,6 @@ jobs:
     needs: generate-project
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - name: Get cached generated project
       uses: actions/cache@v3
@@ -136,9 +126,6 @@ jobs:
     needs: generate-project
     runs-on: ubuntu-latest
     timeout-minutes: 2
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - name: Get cached generated project
       uses: actions/cache@v3
@@ -174,9 +161,6 @@ jobs:
     needs: generate-project
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - name: Get cached generated project
       uses: actions/cache@v3
@@ -237,9 +221,6 @@ jobs:
     needs: upload-generated-project
     runs-on: ubuntu-latest
     timeout-minutes: 1
-    defaults:
-      run:
-        shell: ${{ env.DEFAULT_SHELL }}
     steps:
     - uses: actions/checkout@v3
 
