@@ -18,15 +18,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cookiecutter:
-    name: Cookiecutter
+
+  generate-project:
+    name: Generate project
     runs-on: ubuntu-latest
     timeout-minutes: 5
     defaults:
       run:
         shell: ${{ env.DEFAULT_SHELL }}
     steps:
-
     - uses: actions/checkout@v3
 
     - name: Setup Python
@@ -44,31 +44,75 @@ jobs:
           repo_name="${COOKIECUTTER_PARAM_REPO_NAME}" \
           environment="${COOKIECUTTER_PARAM_ENVIRONMENT}"
 
-    - name: ShellCheck generated scripts
+    - name: Cache generated project
+      uses: actions/cache@v3
+      with:
+        path: ./${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
+        key: ${{ githubu.sha }}
+
+  shellcheck:
+    name: ShellCheck
+    needs: generate-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./*
+        key: ${{ githubu.sha }}
+
+    - name: ShellCheck
       uses: ludeeus/action-shellcheck@1.1.0
       env:
         SHELLCHECK_OPTS: --severity style --enable all --exclude SC2312 --shell bash
       with:
         check_together: yes
-        scandir: "./${COOKIECUTTER_PARAM_REPO_NAME}/scripts"
+        scandir: "./scripts"
+
+  gh-workflows-check:
+    name: GitHub workflows check
+    needs: generate-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./*
+        key: ${{ githubu.sha }}
 
     - name: Setup act
       uses: actionsflow/setup-act@v1
 
-    - name: Test generated GitHub workflows
-      run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
-        act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
+    - name: GitHub workflows check
+      run: act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
 
-    - name: Get JDK version with generated script
+  scalafmt-check:
+    name: Scalafmt check
+    needs: generate-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./*
+        key: ${{ githubu.sha }}
+
+    - name: Get JDK version
       run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_java_version.sh
         echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
 
-    - name: Get sbt version with generated script
+    - name: Get sbt version
       run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_sbt_version.sh
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
@@ -78,25 +122,87 @@ jobs:
         java-version: ${{ env.JAVA_VERSION }}
         distribution: "adopt"
 
-    - name: Scalafmt check generated files
-      run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
-        sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
+    - name: Scalafmt check
+      run: sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
 
-    - name: Run generated tests
-      run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
-        sbt test IntegrationTest/test
+  sbt-tests:
+    name: Run tests
+    needs: generate-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./*
+        key: ${{ githubu.sha }}
 
-    - name: Build generated Docker image
+    - name: Get JDK version
+      run: |
+        source scripts/get_java_version.sh
+        echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Get sbt version
+      run: |
+        source scripts/get_sbt_version.sh
+        echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: "adopt"
+
+    - name: Run tests
+      run: sbt test IntegrationTest/test
+
+  build-image:
+    name: Build Docker image
+    needs: generate-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./*
+        key: ${{ githubu.sha }}
+
+    - name: Get JDK version
+      run: |
+        source scripts/get_java_version.sh
+        echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Get sbt version
+      run: |
+        source scripts/get_sbt_version.sh
+        echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
+
+    - name: Build Docker image
       env:
         ECR_REGISTRY: "ecr_registry"
         ECR_REPO_NAME: "ecr-repo-name"
         IMAGE_LATEST_TAG: "latest"
         SBT_VERSION: ${{ env.SBT_VERSION }}
-      run: |
-        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
-        ./scripts/build_docker_image.sh
+      run: ./scripts/build_docker_image.sh
+
+  upload-generated-project:
+    name: Upload generated project
+    needs: [ shellcheck, gh-workflows-check, scalafmt-check, sbt-tests, build-image ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+    - name: Get cached generated project
+      uses: actions/cache@v3
+      with:
+        path: ./${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
+        key: ${{ githubu.sha }}
 
     - name: Upload generated project
       uses: actions/upload-artifact@v3
@@ -105,9 +211,24 @@ jobs:
         path: |
           ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/
           !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.bsp
-          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.idea
-          !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/.metals
           !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/target
           !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/project/project
           !${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/project/target
         if-no-files-found: error
+
+  clean-cached-project:
+    name: Clean cached project
+    if: ${{ always() }}
+    needs: upload-generated-project
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    defaults:
+      run:
+        shell: ${{ env.DEFAULT_SHELL }}
+    steps:
+    - name: Clear cached project
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh extension install actions/gh-actions-cache
+        gh actions-cache delete "${GITHUB_SHA}" --confirm
