@@ -48,7 +48,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
   shellcheck:
     name: ShellCheck
@@ -60,7 +60,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./*
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: ShellCheck
       uses: ludeeus/action-shellcheck@1.1.0
@@ -83,7 +83,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./*
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: Setup act
       uses: actionsflow/setup-act@v1
@@ -104,7 +104,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./*
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
@@ -138,7 +138,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./*
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
@@ -172,7 +172,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./*
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
@@ -202,7 +202,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
-        key: ${{ githubu.sha }}
+        key: ${{ github.sha }}
 
     - name: Upload generated project
       uses: actions/upload-artifact@v3
