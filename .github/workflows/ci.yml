@@ -89,7 +89,9 @@ jobs:
       uses: actionsflow/setup-act@v1
 
     - name: GitHub workflows check
-      run: act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        act --dryrun --platform "ubuntu-latest=catthehacker/ubuntu:act-latest"
 
   scalafmt-check:
     name: Scalafmt check
