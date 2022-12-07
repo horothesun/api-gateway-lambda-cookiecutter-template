@@ -82,7 +82,7 @@ jobs:
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
-        path: ./*
+        path: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
         key: ${{ github.sha }}
 
     - name: Setup act
@@ -103,16 +103,18 @@ jobs:
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
-        path: ./*
+        path: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
         key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_java_version.sh
         echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
 
     - name: Get sbt version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_sbt_version.sh
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
@@ -123,7 +125,9 @@ jobs:
         distribution: "adopt"
 
     - name: Scalafmt check
-      run: sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
 
   sbt-tests:
     name: Run tests
@@ -137,16 +141,18 @@ jobs:
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
-        path: ./*
+        path: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
         key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_java_version.sh
         echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
 
     - name: Get sbt version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_sbt_version.sh
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
@@ -157,7 +163,9 @@ jobs:
         distribution: "adopt"
 
     - name: Run tests
-      run: sbt test IntegrationTest/test
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        sbt test IntegrationTest/test
 
   build-image:
     name: Build Docker image
@@ -171,16 +179,18 @@ jobs:
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
-        path: ./*
+        path: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
         key: ${{ github.sha }}
 
     - name: Get JDK version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_java_version.sh
         echo "JAVA_VERSION=${JAVA_VERSION}" >> "${GITHUB_ENV}"
 
     - name: Get sbt version
       run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
         source scripts/get_sbt_version.sh
         echo "SBT_VERSION=${SBT_VERSION}" >> "${GITHUB_ENV}"
 
@@ -190,10 +200,13 @@ jobs:
         ECR_REPO_NAME: "ecr-repo-name"
         IMAGE_LATEST_TAG: "latest"
         SBT_VERSION: ${{ env.SBT_VERSION }}
-      run: ./scripts/build_docker_image.sh
+      run: |
+        cd "${COOKIECUTTER_PARAM_REPO_NAME}"
+        ./scripts/build_docker_image.sh
 
   upload-generated-project:
     name: Upload generated project
+    if: github.ref == 'refs/heads/master'
     needs: [ shellcheck, gh-workflows-check, scalafmt-check, sbt-tests, build-image ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
