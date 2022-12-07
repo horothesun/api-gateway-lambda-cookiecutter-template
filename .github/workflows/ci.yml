@@ -226,6 +226,8 @@ jobs:
       run:
         shell: ${{ env.DEFAULT_SHELL }}
     steps:
+    - uses: actions/checkout@v3
+
     - name: Clear cached project
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
