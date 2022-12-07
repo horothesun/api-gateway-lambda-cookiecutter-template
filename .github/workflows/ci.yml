@@ -72,6 +72,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
+    - uses: actions/checkout@v3
+
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
