@@ -59,7 +59,7 @@ jobs:
     - name: Get cached generated project
       uses: actions/cache@v3
       with:
-        path: ./*
+        path: ${{ env.COOKIECUTTER_PARAM_REPO_NAME }}
         key: ${{ github.sha }}
 
     - name: ShellCheck
@@ -68,7 +68,7 @@ jobs:
         SHELLCHECK_OPTS: --severity style --enable all --exclude SC2312 --shell bash
       with:
         check_together: yes
-        scandir: "./scripts"
+        scandir: ./${{ env.COOKIECUTTER_PARAM_REPO_NAME }}/scripts
 
   gh-workflows-check:
     name: GitHub workflows check
