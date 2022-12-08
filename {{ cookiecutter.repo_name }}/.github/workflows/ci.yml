@@ -26,9 +26,6 @@ jobs:
     name: Build, test and push
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    defaults:
-      run:
-        shell: "bash"
     steps:
 
       - uses: actions/checkout@v3
@@ -60,8 +57,9 @@ jobs:
       - name: Scalafmt check
         run: sbt scalafmtSbtCheck scalafmtCheck Test/scalafmtCheck
 
-      - name: Run tests
-        run: sbt test IntegrationTest/test
+      # building the image also performs unit and integration tests
+      # - name: Run tests
+      #   run: sbt test IntegrationTest/test
 
       - name: Build image
         run: ./scripts/build_docker_image.sh
