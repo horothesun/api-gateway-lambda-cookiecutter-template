@@ -10,6 +10,10 @@ Cookiecutter template to generate an API Gateway triggered Lambda.
 
 [horothesun/demo-api-gateway-lambda](https://github.com/horothesun/demo-api-gateway-lambda)
 
+## Terraform module
+
+[horothesun/api-gateway-lambda-infra](https://github.com/horothesun/api-gateway-lambda-infra)
+
 ## Requirements
 
 - Cookiecutter ([install](https://cookiecutter.readthedocs.io/en/latest/installation.html))
