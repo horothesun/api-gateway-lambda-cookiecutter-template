@@ -26,7 +26,7 @@ Secrets
 
 Secrets
 
-- `{{ cookiecutter.__environment_upper }}_BASE_URL`
+- `{{ cookiecutter.__environment_upper }}_BASE_URL`: e.g. `https://<API_ID>.execute-api.<AWS_REGION>.amazonaws.com`
 
 ## Docker
 
