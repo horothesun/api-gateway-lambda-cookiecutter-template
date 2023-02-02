@@ -1,5 +1,7 @@
 package com.{{ cookiecutter.__github_org_pkg }}.{{ cookiecutter.scala_package_name_after_com_org }}.lambda
 
+import com.{{ cookiecutter.__github_org_pkg }}.{{ cookiecutter.scala_package_name_after_com_org }}.Models.Output._
+import io.circe.generic.semiauto._
 import java.util.Base64._
 import scala.util.Try
 
@@ -33,6 +35,13 @@ object Models {
   object StatusCode {
     case object Ok         extends StatusCode
     case object BadRequest extends StatusCode
+  }
+
+  case class BadRequestError(error: String)
+  object BadRequestError {
+    implicit val encoder: io.circe.Encoder[BadRequestError] = deriveEncoder
+
+    def from(e: InputParsingError): BadRequestError = BadRequestError(e.obfuscated)
   }
 
 }

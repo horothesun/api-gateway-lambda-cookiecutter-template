@@ -1,5 +1,7 @@
 import sbtassembly.MergeStrategy
 
+scalacOptions += "-Xfatal-warnings"
+
 ThisBuild / organization     := "com.{{ cookiecutter.__github_org_pkg }}"
 ThisBuild / organizationName := "{{ cookiecutter.github_org }}"
 ThisBuild / scalaVersion     := "{{ cookiecutter.__scala_version }}"
