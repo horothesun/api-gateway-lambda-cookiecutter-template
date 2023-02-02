@@ -11,7 +11,7 @@
   "__scala_version": "2.13.10",
   "__scalafmt_version": "3.6.1",
   "__sbt_scalafmt_version": "2.4.6",
-  "__sbt_assembly_version": "2.0.0",
+  "__sbt_assembly_version": "2.1.0",
   "__lib_cats_effect_version": "3.4.5",
   "__lib_better_monadic_for_version": "0.3.1",
   "__lib_circe_version": "0.14.3",
