@@ -1,6 +1,7 @@
 # API Gateway triggered Lambda
 
-[![CI](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/workflows/CI/badge.svg)](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/actions/workflows/ci.yml)
+[![CI](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/workflows/ci.yml/badge.svg)](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/actions/workflows/ci.yml)
+[![ECR cleanup](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/workflows/ecr_cleanup.yml/badge.svg)](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/actions/workflows/ecr_cleanup.yml)
 [![Manual API call](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/actions/workflows/manual_api_call.yml/badge.svg)](https://github.com/{{ cookiecutter.github_org }}/{{ cookiecutter.repo_name }}/actions/workflows/manual_api_call.yml)
 
 Based on API Gateway's
@@ -22,7 +23,17 @@ Secrets
 - `LAMBDA_NAME`
 - `{{ cookiecutter.__environment_upper }}_CI_ROLE_ARN`
 
-## API call
+## ECR cleanup
+
+Delete all untagged ECR images except the most recent one.
+
+### Secrets
+
+- `AWS_REGION`
+- `ECR_REPO_NAME`
+- `{{ cookiecutter.__environment_upper }}_CI_ROLE_ARN`
+
+## Manual API call
 
 Secrets
 
