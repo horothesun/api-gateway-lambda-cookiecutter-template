@@ -3,7 +3,7 @@ ARG JAVA_VERSION={{ cookiecutter.__java_version }}
 
 # BUILDER
 
-FROM openjdk:${JAVA_VERSION}-jre-slim-buster as builder
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy as builder
 
 ARG SBT_VERSION={{ cookiecutter.__sbt_version }}
 
