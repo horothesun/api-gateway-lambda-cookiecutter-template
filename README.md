@@ -25,7 +25,9 @@ cookiecutter gh:horothesun/api-gateway-lambda-cookiecutter-template
 cd <repo_name>
 ```
 
-## Update `cookiecutter.json` dependencies
+## Update dependencies
+
+Update `cookiecutter.json` dependencies by running
 
 ```bash
 export GITHUB_TOKEN=<PUBLIC_REPO_ACCESS_TOKEN>
