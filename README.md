@@ -24,3 +24,10 @@ Cookiecutter template to generate an API Gateway triggered Lambda.
 cookiecutter gh:horothesun/api-gateway-lambda-cookiecutter-template
 cd <repo_name>
 ```
+
+## Update `cookiecutter.json` dependencies
+
+```bash
+export GITHUB_TOKEN=<PUBLIC_REPO_ACCESS_TOKEN>
+./scripts/update_dependencies.sh
+```
