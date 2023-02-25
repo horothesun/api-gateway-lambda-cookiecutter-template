@@ -3,7 +3,6 @@ package com.{{ cookiecutter.__github_org_pkg }}.{{ cookiecutter.scala_package_na
 import com.amazonaws.services.lambda.runtime.events._
 import com.{{ cookiecutter.__github_org_pkg }}.{{ cookiecutter.scala_package_name_after_com_org }}.Models.Output
 import com.{{ cookiecutter.__github_org_pkg }}.{{ cookiecutter.scala_package_name_after_com_org }}.Models.Output._
-import io.circe.generic.auto._
 import io.circe.syntax._
 import Models._
 import Models.BodyEncoding._
