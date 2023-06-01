@@ -6,7 +6,7 @@
   "environment": "prod",
   "__environment_upper": "{{ cookiecutter.environment|upper|replace('-', '_')|replace(' ', '_') }}",
   "scala_package_name_after_com_org": "{{ cookiecutter.repo_name|lower|replace('-', '')|replace('_', '') }}",
-  "__java_version": "11",
+  "__java_version": "17",
   "__sbt_version": "1.8.3",
   "__scala_version": "2.13.10",
   "__scalafmt_version": "3.7.3",
