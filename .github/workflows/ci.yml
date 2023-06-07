@@ -156,7 +156,7 @@ jobs:
     - name: Run tests
       run: |
         cd "${COOKIECUTTER_PARAM_REPO_NAME}"
-        sbt test IntegrationTest/test
+        sbt test
 
   build-image:
     name: Build Docker image
