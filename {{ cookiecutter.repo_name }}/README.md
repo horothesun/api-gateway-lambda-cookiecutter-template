@@ -45,8 +45,8 @@ Build an image with
 
 ```bash
 docker build --tag "<REPOSITORY:TAG>" \
-  --build-arg "JAVA_VERSION={{ cookiecutter.__java_version }}" \
-  --build-arg "SBT_VERSION={{ cookiecutter.__sbt_version }}" \
+  --build-arg "JAVA_VERSION=..." \
+  --build-arg "SBT_VERSION=..." \
   --file "./Dockerfile" "."
 ```
 
