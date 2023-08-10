@@ -18,7 +18,7 @@
   "__lib_circe_version": "0.14.5",
   "__lib_aws_lambda_core_version": "1.2.2",
   "__lib_aws_lambda_events_version": "3.11.2",
-  "__lib_logback_classic_version": "1.4.8",
+  "__lib_logback_classic_version": "1.4.11",
   "__lib_munit_scalacheck_version": "0.7.29",
   "__lib_munit_cats_effect_version": "1.0.7"
 }
